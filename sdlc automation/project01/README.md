@@ -8,7 +8,7 @@ AWS Sevices Used:
 - Lambda
 - Cloudwatch Event
 
-How Project Works:
+# How Project Works:
   When EC2 launches via AutoScaling Group it will Automaically get the license-key on Dynamodb, (For simplicity License key is add as Tag on the instance) and mark this key as used.
   Autoscaling has lifecyclehook with Instance Terminate.
   CloudWatch Event listen to this hook and trigger lambda function upon this lifecyclehook
