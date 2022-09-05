@@ -17,7 +17,7 @@ AWS Sevices Used:
   
   
 For Follow-Along:
-  - Create IAM role for EC2  name 'ec2-role' and  allow Read and write to S3 and Dynamodb 
+  - Create IAM role for EC2  name 'ec2-role' and  allow acces to EC2 S3 and Dynamodb For simplicity, used the fullAccess options on each service. 
   - Create Dynamodb table 'license_key_db' with key as primary key, populate atleast 5 items on the table with random strings as a key and add used attribute names with Bolean types and with value of False.
   - Create S3 Bucket name of your choice and must be unique. updatethe bucket name portion of the userdata.sh script. 
         - /bin/aws s3 cp s3://your-bucket-name/getkey.py  .
