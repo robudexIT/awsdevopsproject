@@ -17,10 +17,10 @@ AWS Sevices Used:
   
   
 For Follow-Along:
-  - Create IAM role for EC2  name 'ec2-role' and  allow acces to EC2 S3 and Dynamodb For simplicity, used the fullAccess options on each service. 
-  - Create Dynamodb table 'license_key_db' with key as primary key, populate atleast 5 items on the table with random strings as a key and add used attribute names with Bolean types and with value of False.
+  - Create IAM role for EC2  name 'ec2-role' and  allow acces to EC2 S3 and Dynamodb (For simplicity, used the fullAccess options on each service.) 
+  - Create Dynamodb table 'license_key_db' with "key" as primary key, populate atleast 5 items on the table with random strings as a key and add "used" attribute names with Bolean types and with value of False.
   - Create S3 Bucket name of your choice and must be unique. updatethe bucket name portion of the userdata.sh script. 
-        - /bin/aws s3 cp s3://your-bucket-name/getkey.py  .
+      - /bin/aws s3 cp s3://your-bucket-name/getkey.py  .
   - Upload the getkey.py located on this project on your newly created bucket
   - Create Launch Configuration with following settings
        - AMI = ami-0c2ab3b8efb09f272
@@ -61,6 +61,6 @@ For Follow-Along:
                         }
                       }
     - Target: lambda->before_terminating
-  - Terminate the Instance to Test. After Instance was terminate check the Dynamodb Table and check the key randaom_string set back to false or it back to unused
+  - Terminate the Instance to Test. After Instance was terminate check the Dynamodb Table and check if the key randaom_string set back to False or it back to unused
   - After Lab..Please Delete/Terminate All used Services.
   - 
