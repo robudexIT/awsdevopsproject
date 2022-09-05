@@ -1,5 +1,5 @@
 # This Project dynamically allocates the software licenses to the application servers upon creation
-Note: This Project is created in Region: us-west-2/Oregon
+Note: This Project is created in Region: us-west-2/Oregon.
 AWS Sevices Used:
 - AutoScaling Group
 - S3 
