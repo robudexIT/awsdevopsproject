@@ -1,0 +1,1 @@
+aws dynamodb scan --table-name license_key_db --filter-expression "used = :u" --expression-attribute-values '{":u":{"BOOL":false}}' --max-items 1 --region us-west-2
