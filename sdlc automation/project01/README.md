@@ -1,5 +1,6 @@
 # This Project dynamically allocates the software licenses to the application servers upon creation
 Note: This Project is created in Region: us-west-2/Oregon.
+
 AWS Sevices Used:
 - AutoScaling Group
 - S3 
@@ -7,14 +8,20 @@ AWS Sevices Used:
 - Lambda
 - Cloudwatch Event
 
-Project Details:
-  This project dy
+How Project Works:
+  When EC2 launches via AutoScaling Group it will Automaically get the license-key on Dynamodb, (For simplicity License key is add as Tag on the instance) and mark this key as used.
+  Autoscaling has lifecyclehook with Instance Terminate.
+  CloudWatch Event listen to this hook and trigger lambda function upon this lifecyclehook
+  Lambda function then update license key used by terminate back to unsed.
   
   
   
 For Follow-Along:
   - Create IAM role for EC2  name 'ec2-role' and  allow Read and write to S3 and Dynamodb 
   - Create Dynamodb table 'license_key_db' with key as primary key, populate atleast 5 items on the table with random strings as a key and add used attribute names with Bolean types and with value of False.
+  - Create S3 Bucket name of your choice and must be unique. updatethe bucket name portion of the userdata.sh script. 
+        - /bin/aws s3 cp s3://your-bucket-name/getkey.py  .
+  - Upload the getkey.py located on this project on your newly created bucket
   - Create Launch Configuration with following settings
        - AMI = ami-0c2ab3b8efb09f272
        - Instance type = t2.micro
