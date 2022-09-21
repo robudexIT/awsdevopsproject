@@ -1,0 +1,44 @@
+#create custom action type
+aws codepipeline create-custom-action-type --cli-input-json file://action.json
+
+#polling for jobs.
+aws codepipeline poll-for-jobs --region us-west-2 --action-type-id category=Build,owner=Custom,provider=BuildUpdatedLinuxAmi,version=1 --profile devops-admin
+
+#Acknowledge the job.
+aws codepipeline acknowledge-job --region us-west-2 --job-id 1a236939-eef0-4cf0-b38d-8ad2250cc010 --nonce 466900492 --profile devops-admin
+
+#Once job is done, signal SUCCESS as below:
+aws codepipeline put-job-success-result --job-id 1a236939-eef0-4cf0-b38d-8ad2250cc010 --region us-west-2 --profile devops-admin
+or send failure.
+aws codepipeline put-job-failure-result --job-id  --region us-west-2 --profile devops-admin
+
+
+#command
+aws ssm describe-automation-executions --filters Key=ExecutionId,Values=90181620-9b6e-44e8-af41-4438c5eb21f0 --region us-west-2 --profile devops-admin
+#response
+{
+    "AutomationExecutionMetadataList": [
+        {
+            "AutomationExecutionId": "90181620-9b6e-44e8-af41-4438c5eb21f0",
+            "DocumentName": "Latest-Robudex-UpdateLinuxAmi",
+            "DocumentVersion": "1",
+            "AutomationExecutionStatus": "InProgress",
+            "ExecutionStartTime": "2022-09-17T00:23:47.173000+08:00",
+            "ExecutedBy": "arn:aws:sts::{Account-ID}:assumed-role/customactionstack-Ec2BuilderRole-UZPE65DEOFIK/i-07aaf476453be4b14",
+            "LogFile": "",
+            "Outputs": {},
+            "Mode": "Auto",
+            "CurrentStepName": "createImage",
+            "CurrentAction": "aws:createImage",
+            "Targets": [],
+            "ResolvedTargets": {
+                "ParameterValues": [],
+                "Truncated": false
+            },
+            "AutomationType": "Local"
+        }
+    ]
+   AutomationExecutionStatus
+     - Failed 
+     - InProgress
+     - Success

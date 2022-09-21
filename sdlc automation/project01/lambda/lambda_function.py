@@ -57,7 +57,7 @@ def lambda_handler(event, context):
     
     
     response = client.complete_lifecycle_action(
-        LifecycleHookName='before_terminate',
+        LifecycleHookName=' ',
         AutoScalingGroupName='asg1',
         LifecycleActionResult='CONTINUE',
         InstanceId=EC2InstanceId,

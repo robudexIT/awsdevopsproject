@@ -1,0 +1,121 @@
+{
+  "Comment": "A description of my state machine",
+  "StartAt": "Start Automation Execution",
+  "States": {
+    "Start Automation Execution": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:us-west-2:065741252821:function:HelloFunction",
+      "ResultPath": "$.lambdaResult",
+      "OutputPath": "$.lambdaResult",
+      "Parameters": {
+        "command": "run"
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 6,
+          "BackoffRate": 2
+        }
+      ],
+      "Next": "Wait For Automation To Complete",
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "ResultPath": "$.errorDetails",
+          "Next": "Report Completion"
+        }
+      ]
+    },
+    "Wait For Automation To Complete": {
+      "Type": "Wait",
+      "Seconds": 30,
+      "Next": "Check Automation Status"
+    },
+    "Check Automation Status": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:us-west-2:065741252821:function:HelloFunction",
+      "InputPath": "$",
+      "ResultPath": "$.lambdaResult",
+      "OutputPath": "$.lambdaResult",
+      "Parameters": {
+        "command": "status",
+        "lambdaResult.$": "$"
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 6,
+          "BackoffRate": 2
+        }
+      ],
+      "Next": "Automation Completed?",
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "ResultPath": "$.errorDetails",
+          "Next": "Report Completion"
+        }
+      ]
+    },
+    "Report Completion": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:us-west-2:065741252821:function:HelloFunction",
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 6,
+          "BackoffRate": 2
+        }
+      ],
+      "End": true
+    },
+    "Automation Completed?": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.status",
+          "StringMatches": "Success",
+          "Comment": "Success",
+          "Next": "Pass"
+        },
+        {
+          "Variable": "$.status",
+          "StringMatches": "Failed",
+          "Comment": "Failed",
+          "Next": "Fail"
+        }
+      ],
+      "OutputPath": "$",
+      "Default": "Wait For Automation To Complete"
+    },
+    "Pass": {
+      "Type": "Pass",
+      "End": true
+    },
+    "Fail": {
+      "Type": "Fail",
+      "Error": "Automation Error",
+      "Cause": "Error on Automation Execution",
+      "Comment": "Error on Automation Execution"
+    }
+  }
+}

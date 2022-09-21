@@ -8,7 +8,7 @@
 
 
 #Copy the script from s3 bucket to current directory
-/bin/aws s3 cp s3://rog-source/getkey.py  .
+/bin/aws s3 cp s3://your-bucket-name/getkey.py  .
 
 #Install requests module
 /bin/python3 -m pip install requests

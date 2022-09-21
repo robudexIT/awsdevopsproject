@@ -1,0 +1,38 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "lambda:InvokeFunction"
+            ],
+            "Resource": [
+                "arn:aws:lambda:${region}:${AccountId}:function:HelloFunction:*"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "lambda:InvokeFunction"
+            ],
+            "Resource": [
+                "arn:aws:lambda:us-west-2:065741252821:function:HelloFunction"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "xray:PutTraceSegments",
+                "xray:PutTelemetryRecords",
+                "xray:GetSamplingRules",
+                "xray:GetSamplingTargets"
+            ],
+            "Resource": [
+                "*"
+            ]
+        }
+    ]
+}
+
+
+
