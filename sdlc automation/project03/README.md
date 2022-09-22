@@ -15,6 +15,9 @@ AWS Sevices Used:
 - Cloudwatch Event
 - EC2 Instance
 
+Project Architecture:
+![alt text](https://github.com/robudexIT/awsdevopsproject/blob/main/sdlc%20automation/project03/project03.png?raw=true)
+
 # How Project Works:
     1. As part of the pipeline, when there's a commit on the codecommit repository masterbranch, its trigger pipeline to execute the changes
     2. An Amazon CloudWatch Event triggers an AWS Lambda function when a custom CodePipeline action is to be executed.
