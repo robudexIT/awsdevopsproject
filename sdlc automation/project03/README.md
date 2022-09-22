@@ -15,7 +15,7 @@ AWS Sevices Used:
 - Cloudwatch Event
 - EC2 Instance
 
-Project Architecture:
+# Project Architecture:
 
 ![alt text](https://github.com/robudexIT/awsdevopsproject/blob/main/sdlc%20automation/project03/project03.png?raw=true)
 
@@ -26,5 +26,29 @@ Project Architecture:
     4.The Step Functions flow starts an AWS Systems Manager Automation. The Step Functions flow is also responsible for handling all the errors during build job execution
     5.The Systems Manager Automation which runs by lambda functions, start an awslinux instance, apply patch and update. stop the instance,create updatedAMI, terminate the instance, and trigger lambda function to udate the parameter store with the new ami-id.
     6. Polling Lambda updates the state of the custom action in CodePipeline once it detects that the Step Function flow is completed.
+   
+# Deployment:
+    1. System Manager:
+        - Paramater Store:
+           - Create two paramaters one for sourceAMI and one for the latestAMI.
+             For the source parameter:
+                -  aws ssm put-parameter --name "/GoldenAMI/Linux/Amazon/source" --type "String"  --value "ami-0c2ab3b8efb09f272" --region us-west-2 
+             For the latest parameter:
+                -  aws ssm put-parameter --name "/GoldenAMI/Linux/Amazon/latest" --type "String"  --value "ami-0c2ab3b8efb09f272" --region us-west-2
+             Go to AWS System Parameter Store to check or to it in CLI using this command:
+                - aws ssm get-parameters --names /GoldenAMI/Linux/Amazon/source /GoldenAMI/Linux/Amazon/latest --region us-west-2 
+                
+        - Automation Create Document 
+            1. Creating Roles used for Automations using cloudformation
+                aws cloudformation create-stack --stack-name automationrolestack --template-body file://AWS-SystemsManager-AutomationServiceRole.yaml --  capabilities CAPABILITY_NAMED_IAM --region us-west-2 
+            2.Creating System Manager Automation Document:
+            `   aws ssm create-document --content file://automationdocument.json --document-format JSON --name GoldenUpdatedLinuxAmi --document-type Automation --region us-west-2 
+
+         
+                
+      
+            
+
+     
 
 
