@@ -16,6 +16,7 @@ AWS Sevices Used:
 - EC2 Instance
 
 Project Architecture:
+
 ![alt text](https://github.com/robudexIT/awsdevopsproject/blob/main/sdlc%20automation/project03/project03.png?raw=true)
 
 # How Project Works:
