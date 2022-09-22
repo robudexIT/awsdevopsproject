@@ -43,6 +43,8 @@ AWS Sevices Used:
                 aws cloudformation create-stack --stack-name automationrolestack --template-body file://AWS-SystemsManager-AutomationServiceRole.yaml --  capabilities CAPABILITY_NAMED_IAM --region us-west-2 
             2.Creating System Manager Automation Document:
             `   aws ssm create-document --content file://automationdocument.json --document-format JSON --name GoldenUpdatedLinuxAmi --document-type Automation --region us-west-2 
+            
+           ####### This Documentation is not yet done #####
 
          
                 
