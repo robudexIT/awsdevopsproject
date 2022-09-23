@@ -75,24 +75,48 @@ AWS Sevices Used:
             {custom-action-version} - version of the custom action (1, 2, 3, etc.). Each deployment of the custom action has to have a distinct version number.   
              
        - Create CodePipeline
-         Follow These Steps:
+    # Goto CodePipeline Follow These Steps:
          
   ![alt text](https://github.com/robudexIT/awsdevopsproject/blob/main/sdlc%20automation/project03/images/pipe01.png?raw=true)
   
   ![alt text](https://github.com/robudexIT/awsdevopsproject/blob/main/sdlc%20automation/project03/images/pipe02.png?raw=true)
   
+  Skip build stage. 
+
   ![alt text](https://github.com/robudexIT/awsdevopsproject/blob/main/sdlc%20automation/project03/images/pipe03.png?raw=true)
   
+  Review the Settings and click create pipeline button
+  ![alt text](https://github.com/robudexIT/awsdevopsproject/blob/main/sdlc%20automation/project03/images/pipe12.png?raw=true)
+
+  Notice that the pipeline start immediately at make error on the deploy stage
+  That because codedeploy doesnt see any instance yet.
+
   ![alt text](https://github.com/robudexIT/awsdevopsproject/blob/main/sdlc%20automation/project03/images/pipe04.png?raw=true)
-  
+
+  Create two Stages between the Source and Deploy stage a shown in the images.
   ![alt text](https://github.com/robudexIT/awsdevopsproject/blob/main/sdlc%20automation/project03/images/pipe05.png?raw=true)
-  
+
+  For  Add Action in the BuildAMI Stage 
   ![alt text](https://github.com/robudexIT/awsdevopsproject/blob/main/sdlc%20automation/project03/images/pipe06.png?raw=true)
   
+  For  Add Action in the createInfra Stage 
   ![alt text](https://github.com/robudexIT/awsdevopsproject/blob/main/sdlc%20automation/project03/images/pipe07.png?raw=true)
   
   ![alt text](https://github.com/robudexIT/awsdevopsproject/blob/main/sdlc%20automation/project03/images/pipe08.png?raw=true)
-  
+
+  Once done, click save and click the Release Change button to force the pipeline to execute.
   ![alt text](https://github.com/robudexIT/awsdevopsproject/blob/main/sdlc%20automation/project03/images/pipe10.png?raw=true)
+
+
+  When you see these images, the pipeline task is done.
+![alt text](https://github.com/robudexIT/awsdevopsproject/blob/main/sdlc%20automation/project03/images/sourcestage.png?raw=true)
+
+
+![alt text](https://github.com/robudexIT/awsdevopsproject/blob/main/sdlc%20automation/project03/images/buildamistage.png?raw=true)
+
+![alt text](https://github.com/robudexIT/awsdevopsproject/blob/main/sdlc%20automation/project03/images/createinfrastage.png?raw=true)
+
+
+![alt text](https://github.com/robudexIT/awsdevopsproject/blob/main/sdlc%20automation/project03/images/deploystage.png?raw=true)
 
 
