@@ -75,5 +75,23 @@ AWS Sevices Used:
             {custom-action-version} - version of the custom action (1, 2, 3, etc.). Each deployment of the custom action has to have a distinct version number.   
              
        - Create CodePipeline
-         
+         Follow These Steps:
+         ![alt text](https://github.com/robudexIT/awsdevopsproject/blob/main/sdlc%20automation/project03/images/pipe01.png?raw=true)
+
+        ![alt text](https://github.com/robudexIT/awsdevopsproject/blob/main/sdlc%20automation/project03/images/pipe02.png?raw=true)
+
+        ![alt text](https://github.com/robudexIT/awsdevopsproject/blob/main/sdlc%20automation/project03/images/pipe03.png?raw=true)
+
+         ![alt text](https://github.com/robudexIT/awsdevopsproject/blob/main/sdlc%20automation/project03/images/pipe04.png?raw=true)
+
+        ![alt text](https://github.com/robudexIT/awsdevopsproject/blob/main/sdlc%20automation/project03/images/pipe05.png?raw=true)
+        
+        ![alt text](https://github.com/robudexIT/awsdevopsproject/blob/main/sdlc%20automation/project03/images/pipe06.png?raw=true)
+           
+        ![alt text](https://github.com/robudexIT/awsdevopsproject/blob/main/sdlc%20automation/project03/images/pipe07.png?raw=true)
+        
+        ![alt text](https://github.com/robudexIT/awsdevopsproject/blob/main/sdlc%20automation/project03/images/pipe08.png?raw=true)
+          
+        ![alt text](https://github.com/robudexIT/awsdevopsproject/blob/main/sdlc%20automation/project03/images/pipe10.png?raw=true) 
+
 
