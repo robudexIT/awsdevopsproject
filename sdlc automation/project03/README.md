@@ -76,7 +76,7 @@ AWS Sevices Used:
              
        - Create CodePipeline
          Follow These Steps:
-         ![alt text](https://github.com/robudexIT/awsdevopsproject/blob/main/sdlc%20automation/project03/images/pipe01.png?raw=true)
+  ![alt text](https://github.com/robudexIT/awsdevopsproject/blob/main/sdlc%20automation/project03/images/pipe01.png?raw=true)
 
        
 
