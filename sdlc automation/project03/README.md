@@ -45,12 +45,35 @@ AWS Sevices Used:
             `   aws ssm create-document --content file://automationdocument.json --document-format JSON --name GoldenUpdatedLinuxAmi --document-type Automation --region us-west-2 
             
            ####### This Documentation is not yet done #####
-
+    2.Launch WebServer using CloudFormation
+    aws cloudformation deploy --template-file cf.yml --stack-name WebStack --parameter-overrides ImageId=/GoldenAMI/Linux/Amazon/source SSHKey={yourKeypair} --capabilities CAPABILITY_IAM --region us-west-2 
+       aws iam create-role --role-name cf-role --assume-role-policy-document file://cf_trust_policy.json 
+       aws iam attach-role-policy --role-name  cf-role --policy-arn arn:aws:iam::aws:policy/AmazonEC2FullAccess
+       aws iam attach-role-policy --role-name  cf-role --policy-arn arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess
+       
+    3. CICD
+        - Create Codecommit Repository name (source_code(
+           aws codecommit create-repository --repository-name MyDemoRepo --repository-description "My demonstration repository" --region us-west-2 
+        - Create CodeDepoly Applicaiton:
+            1.Create CodeDeploy Role
+                 aws iam create-role --role-name myCodeDeployRole --assume-role-policy-document file://codeploy_trust_policy.json 
+                 aws iam attach-role-policy --role-name myCodeDeployRole --policy-arn arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole 
+            2. Create CodeDeploy Application and Deployement Group:
+                aws deploy create-application --application-name MYSERVERAPPS --compute-platform Server --region us-west-2 
+                aws deploy create-deployment-group --application-name MYSERVERAPPS --deployment-group-name dg001  --ec2-tag-filters Key=Environment,Value=Development,Type=KEY_AND_VALUE --service-role-arn { myCodeDeployRole ARN Here} --region us-west-2
+        
+        - Create The CodePipeLine Custom Action
+                aws codepipeline create-custom-action-type --cli-input-json file://action.json --region us-west-2 --profile devops-admin
+                 
          
-                
-      
-            
-
-     
-
+         - Package and upload necessary resources (deployment package for lambda functions). 
+             aws s3 mb s3://{your-deployment-bucke} --region us-west-2
+             aws cloudformation package --template-file template.yml --output-template-file deployment.yml --s3-bucket {deployment-bucket}
+             aws cloudformation deploy --template-file deployment.yml --capabilities CAPABILITY_NAMED_IAM --stack-name {stack-name} --parameter-overrides CustomActionProviderVersion={custom-action-version}
+          Note that you need to provide the following parameters:
+            {stack-name} - CloudFormation stack name
+            {custom-action-version} - version of the custom action (1, 2, 3, etc.). Each deployment of the custom action has to have a distinct version number.   
+             
+       - Create CodePipeline
+         
 
