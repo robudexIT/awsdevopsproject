@@ -3,11 +3,11 @@
     "provider": "BuildUpdatedLinuxAmi",
     "version": "1",
     "settings": {
-        "entityUrlTemplate": "https://${AWS::Region}.console.aws.amazon.com/systems-manager/automation/execute/Latest-Robudex-UpdateLinuxAmi",
-        "executionUrlTemplate": "https://${AWS::Region}.console.aws.amazon.com/states/home#/executions/details/{ExternalExecutionId}"
+        "entityUrlTemplate": "https://us-west-2.console.aws.amazon.com/systems-manager/automation/execute/Latest-Robudex-UpdateLinuxAmi",
+        "executionUrlTemplate": "https://us-west-2.console.aws.amazon.com/states/home#/executions/details/{ExternalExecutionId}"
     },
     "configurationProperties": [{
-        "name": "ProjectPhoenix",
+        "name": "buildupdatedlinuxami",
         "required": true,
         "key": true,
         "secret": false,
@@ -25,6 +25,6 @@
     },
     "tags": [{
       "key": "Project",
-      "value": "ProjectPhoenix"
+      "value": "BuildGoldenAMI"
     }]
 }

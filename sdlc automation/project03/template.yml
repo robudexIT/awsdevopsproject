@@ -49,13 +49,32 @@ Parameters:
   CustomActionProviderVersion:
     Type: String
     Description: Version of the custom action provider (used in CodePipeline Console UI).
+    Default: '1'
   AutomationServiceRole: 
     Description: The name of the role that allows Automation to perform the actions on your behalf.
     Type: String
-  
+  SsmDocumentName:
+    Description: System Manager Automation Document
+    Type: String
+    Default: GoldenUpdatedLinuxAmi
+  SsmDocumentVersion:
+    Description: System Manager Automation Document Version
+    Type: String
+    Default: '1'
 Resources: 
 
   # Supporting Lambda Functions 
+  UpdateSsmParameterHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Update SSM Paramater.
+      CodeUri: lambda/update-ssm-paramater
+      Handler: lambda.lambda_handler
+      Runtime: python3.7
+      Role: !GetAtt UpdateSsmParameterRole.Arn
+      MemorySize: 128
+      Timeout: 15
+
   JobCompletionHandler:
     Type: AWS::Serverless::Function
     Properties:
@@ -79,8 +98,8 @@ Resources:
       Timeout: 15
       Environment:
         Variables:
-          SSM_DOCUMENT_NAME: Latest-Robudex-UpdateLinuxAmi
-          SSM_DOCUMENT_VERSION: '1'
+          SSM_DOCUMENT_NAME: !Ref SsmDocumentName
+          SSM_DOCUMENT_VERSION: !Ref SsmDocumentVersion
 
   # CodePipeline Polling Function
   CodePipelinePoller:
@@ -252,7 +271,22 @@ Resources:
       RoleArn: !GetAtt Ec2BuilderStateMachineExecutionRole.Arn
 
   # Lambda Roles
-
+  UpdateSsmParameterRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: "/"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - arn:aws:iam::aws:policy/AmazonSSMFullAccess
   JobCompletionHandlerExecutionRole:
     Type: AWS::IAM::Role
     Properties:
@@ -317,23 +351,22 @@ Resources:
       Path: "/"
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - arn:aws:iam::aws:policy/AmazonSSMFullAccess
       Policies:
         - PolicyName: root
           PolicyDocument:
             Version: '2012-10-17'
             Statement:
               - Effect: Allow
-                Action:
-                  - ssm: "*"
-                Resource: "*"
-              - Effect: Allow
                 Action: 
-                  - iam:"GetRole"
-                  - iam:"PassRole"
+                  - iam:GetRole
+                  - iam:PassRole
                 Resource:  !Sub
                   - "arn:aws:iam::${AWS::AccountId}:role/${automationservicerole}"
                   -  automationservicerole: !Ref AutomationServiceRole                   
   
+
+
   # Step Functions Role
 
   Ec2BuilderStateMachineExecutionRole:
