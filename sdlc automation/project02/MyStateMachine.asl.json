@@ -4,7 +4,7 @@
   "States": {
     "Start Automation Execution": {
       "Type": "Task",
-      "Resource": "arn:aws:lambda:us-west-2:065741252821:function:HelloFunction",
+      "Resource": "${YOUR_LAMBDA_FUNCTION_URL}",
       "ResultPath": "$.lambdaResult",
       "OutputPath": "$.lambdaResult",
       "Parameters": {
@@ -40,7 +40,7 @@
     },
     "Check Automation Status": {
       "Type": "Task",
-      "Resource": "arn:aws:lambda:us-west-2:065741252821:function:HelloFunction",
+      "Resource": "${YOUR_LAMBDA_FUNCTION_URL}",
       "InputPath": "$",
       "ResultPath": "$.lambdaResult",
       "OutputPath": "$.lambdaResult",
@@ -73,7 +73,7 @@
     },
     "Report Completion": {
       "Type": "Task",
-      "Resource": "arn:aws:lambda:us-west-2:065741252821:function:HelloFunction",
+      "Resource": "${YOUR_LAMBDA_FUNCTION_URL}",
       "Retry": [
         {
           "ErrorEquals": [
