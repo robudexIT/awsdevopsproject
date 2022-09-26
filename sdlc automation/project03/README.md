@@ -1,7 +1,7 @@
 # This Project is using Codepipeline Custom Action to created updated and fully patched linuxAMI,
 
-Note: This Project is created in Region: us-west-2/Oregon.
-Note: This Project is based on  https://github.com/aws-samples/aws-codepipeline-custom-action. I changes and remove all codes that not relevant on this project. As an aspirant DevOPS Engineer, Its really good to know that we have some reference to someone that smarter than us and apply it to our own project.
+Note: This Project is created in Region: us-west-2/Oregon.And
+ This Project is based on  https://github.com/aws-samples/aws-codepipeline-custom-action. I changes and remove all codes that not relevant on this project. As an aspirant DevOPS Engineer, Its really good to know that we have some reference to someone that smarter than us and apply it to our own project.
 
 AWS Sevices Used:
 - System Manager ParameterStore
@@ -28,11 +28,12 @@ AWS Sevices Used:
     6. Polling Lambda updates the state of the custom action in CodePipeline once it detects that the Step Function flow is completed.
    
 # Deployment:
+    Download and cd to project03 run the command below:
     1. System Manager:
         - Paramater Store:
            - Create two paramaters one for sourceAMI and one for the latestAMI.
              For the source parameter:
-                -  aws ssm put-parameter --name "/GoldenAMI/Linux/Amazon/source" --type "String"  --value "ami-0c2ab3b8efb09f272" --region us-west-2 
+                -  **aws ssm put-parameter --name "/GoldenAMI/Linux/Amazon/source" --type "String"  --value "ami-0c2ab3b8efb09f272" --region us-west-2** 
              For the latest parameter:
                 -  aws ssm put-parameter --name "/GoldenAMI/Linux/Amazon/latest" --type "String"  --value "ami-0c2ab3b8efb09f272" --region us-west-2
              Go to AWS System Parameter Store to check or to it in CLI using this command:
@@ -44,32 +45,33 @@ AWS Sevices Used:
             2.Creating System Manager Automation Document:
             `   aws ssm create-document --content file://automationdocument.json --document-format JSON --name GoldenUpdatedLinuxAmi --document-type Automation --region us-west-2 
             
-           ####### This Documentation is not yet done #####
+        
     2.Launch WebServer using CloudFormation
-    aws cloudformation deploy --template-file cf.yml --stack-name WebStack --parameter-overrides ImageId=/GoldenAMI/Linux/Amazon/source SSHKey={yourKeypair} --capabilities CAPABILITY_IAM --region us-west-2 
-       aws iam create-role --role-name cf-role --assume-role-policy-document file://cf_trust_policy.json 
-       aws iam attach-role-policy --role-name  cf-role --policy-arn arn:aws:iam::aws:policy/AmazonEC2FullAccess
+    - aws cloudformation deploy --template-file cf.yml --stack-name WebStack --parameter-overrides ImageId=/GoldenAMI/Linux/Amazon/source SSHKey={yourKeypair} --capabilities CAPABILITY_IAM --region us-west-2 
+       - aws iam create-role --role-name cf-role --assume-role-policy-document file://cf_trust_policy.json 
+       - aws iam attach-role-policy --role-name  cf-role --policy-arn arn:aws:iam::aws:policy/AmazonEC2FullAccess
        aws iam attach-role-policy --role-name  cf-role --policy-arn arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess
        
     3. CICD
         - Create Codecommit Repository name (source_code(
-           aws codecommit create-repository --repository-name MyDemoRepo --repository-description "My demonstration repository" --region us-west-2 
+           - aws codecommit create-repository --repository-name MyDemoRepo --repository-description "My demonstration repository" --region us-west-2. 
+           Then upload the sourcecode to this repository.
         - Create CodeDepoly Applicaiton:
             1.Create CodeDeploy Role
-                 aws iam create-role --role-name myCodeDeployRole --assume-role-policy-document file://codeploy_trust_policy.json 
+                 - aws iam create-role --role-name myCodeDeployRole --assume-role-policy-document file://codeploy_trust_policy.json 
                  aws iam attach-role-policy --role-name myCodeDeployRole --policy-arn arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole 
             2. Create CodeDeploy Application and Deployement Group:
-                aws deploy create-application --application-name MYSERVERAPPS --compute-platform Server --region us-west-2 
-                aws deploy create-deployment-group --application-name MYSERVERAPPS --deployment-group-name dg001  --ec2-tag-filters Key=Environment,Value=Development,Type=KEY_AND_VALUE --service-role-arn { myCodeDeployRole ARN Here} --region us-west-2
+                - aws deploy create-application --application-name MYSERVERAPPS --compute-platform Server --region us-west-2 
+                - aws deploy create-deployment-group --application-name MYSERVERAPPS --deployment-group-name dg001  --ec2-tag-filters Key=Environment,Value=Development,Type=KEY_AND_VALUE --service-role-arn { myCodeDeployRole ARN Here} --region us-west-2
         
         - Create The CodePipeLine Custom Action
-                aws codepipeline create-custom-action-type --cli-input-json file://action.json --region us-west-2 --profile devops-admin
+                - aws codepipeline create-custom-action-type --cli-input-json file://action.json --region us-west-2 --profile devops-admin
                  
          
          - Package and upload necessary resources (deployment package for lambda functions). 
-             aws s3 mb s3://{your-deployment-bucke} --region us-west-2
-             aws cloudformation package --template-file template.yml --output-template-file deployment.yml --s3-bucket {deployment-bucket}
-             aws cloudformation deploy --template-file deployment.yml --capabilities CAPABILITY_NAMED_IAM --stack-name {stack-name} --parameter-overrides CustomActionProviderVersion={custom-action-version}
+             - aws s3 mb s3://{your-deployment-bucket} --region us-west-2
+             - aws cloudformation package --template-file template.yml --output-template-file deployment.yml --s3-bucket {your-deployment-bucket}
+             - aws cloudformation deploy --template-file deployment.yml --capabilities CAPABILITY_NAMED_IAM --stack-name {stack-name} --parameter-overrides CustomActionProviderVersion={custom-action-version}
           Note that you need to provide the following parameters:
             {stack-name} - CloudFormation stack name
             {custom-action-version} - version of the custom action (1, 2, 3, etc.). Each deployment of the custom action has to have a distinct version number.   
@@ -120,3 +122,5 @@ AWS Sevices Used:
 ![alt text](https://github.com/robudexIT/awsdevopsproject/blob/main/sdlc%20automation/project03/images/deploystage.png?raw=true)
 
 
+Open the AWS EC2 and look for the instance.
+To test, copy the Instance public dnsname or public ip address.and paste it in the browser.
