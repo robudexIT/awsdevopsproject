@@ -33,7 +33,7 @@ AWS Sevices Used:
         - Paramater Store:
            - Create two paramaters one for sourceAMI and one for the latestAMI.
              For the source parameter:
-                -  **aws ssm put-parameter --name "/GoldenAMI/Linux/Amazon/source" --type "String"  --value "ami-0c2ab3b8efb09f272" --region us-west-2** 
+                - **aws ssm put-parameter --name "/GoldenAMI/Linux/Amazon/source" --type "String"  --value "ami-0c2ab3b8efb09f272" --region us-west-2** 
              For the latest parameter:
                 -  aws ssm put-parameter --name "/GoldenAMI/Linux/Amazon/latest" --type "String"  --value "ami-0c2ab3b8efb09f272" --region us-west-2
              Go to AWS System Parameter Store to check or to it in CLI using this command:
