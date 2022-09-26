@@ -8,6 +8,8 @@ exports.handler = (event, context, callback) => {
   }else if(command === 'status'){
        if(status === 'Success'){
          callback(null, {status: 'Success', executionId: 'abcd12345'})
+       }else if(status === 'Failed'){
+          callback(null,{status: 'Failed', executionId: 'abcd12345'})
        }else{
          console.log(event)
          let attempt = parseInt(event.lambdaResult.attempt)

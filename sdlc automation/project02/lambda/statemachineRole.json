@@ -7,7 +7,7 @@
                 "lambda:InvokeFunction"
             ],
             "Resource": [
-                "arn:aws:lambda:${region}:${AccountId}:function:HelloFunction:*"
+                "${YOUR_LAMBDA_FUNCTION_ARN}:*"
             ]
         },
         {
@@ -16,7 +16,7 @@
                 "lambda:InvokeFunction"
             ],
             "Resource": [
-                "arn:aws:lambda:us-west-2:065741252821:function:HelloFunction"
+                "${YOUR_LAMBDA_FUNCTION_ARN}"
             ]
         },
         {
