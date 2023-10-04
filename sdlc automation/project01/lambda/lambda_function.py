@@ -3,11 +3,8 @@ import boto3
 import requests
 from botocore.config import Config
 from boto3.dynamodb.conditions import  Attr
-my_config = Config(
-        region_name = 'us-west-2'
-)
 
-dynamodb = boto3.resource('dynamodb', config=my_config)
+dynamodb = boto3.resource('dynamodb')
 
 table = dynamodb.Table('license_key_db')
 
