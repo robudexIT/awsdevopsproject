@@ -49,9 +49,7 @@ This Lambda function is responsible for updating the status of the license key i
 
 7. Confirm DynamoDB Update: Open your DynamoDB table and confirm that the 'used' attribute for the 'your_random_string' key is set to 'True'.
 
-8. Create a Lambda Function named **'before_terminating'** with a Python3+ runtime.
-
-Upload the 'lambda.zip' file located in this project.
+8. Create a Lambda Function named **'before_terminating'** with a Python3+ runtime. Upload the 'lambda.zip' file located in this project.
 9. Assign a Role to the Lambda Function to grant access to EC2 and DynamoDB. For simplicity, you can use 'FullAccess' policies for both services.
 
 10. Create a CloudWatch Event Rule named **'ec2_terminate'** with the following settings:
