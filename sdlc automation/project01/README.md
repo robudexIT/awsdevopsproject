@@ -25,7 +25,7 @@ This Lambda function is responsible for updating the status of the license key i
 
 3. Clone the GitHub Repository: Clone the GitHub repository from this link (https://github.com/robudexIT/awsdevopsproject.git) and navigate to 'awsdevopsproject/sdlc automation/project01'. This directory will be your working directory for this project.
 
-4. Create a Launch Configuration with the following settings:
+4. Create a Launch Template with the following settings:
 
 - AMI: **ubuntu server 20.04**
 - Instance Type: **t2.micro**
@@ -33,18 +33,22 @@ This Lambda function is responsible for updating the status of the license key i
 - Security Group: Create a new one
 - Key Pair: Use your own Key Pair
 - Advanced Details: Look for 'User Data' and paste the content of 'userdata.sh' from this project.
-- Click 'Create Launch Configuration'.
-- Create an Auto Scaling Group (ASG) named **'asg1**':
+- Click 'Create Launch Template'.
 
-- Choose the default VPC and select all available Availability Zones.
+5. Create an Auto Scaling Group (ASG) named **'asg1**':
+- choose the Launch Template that you created and click **Next**. 
+- Choose the default VPC. Select all available Availability Zones and click **Next**.
 - No load balancer for this setup.
-- Set Health Check to 'EC2'.
+- Set Health Check to 'EC2' and click **Next**.
 - Group Size:
    - Minimum: 1
    - Desired: 1
    - Maximum: 3
+- click **Next**
 - Leave all other settings as default and create the Auto Scaling Group.
-- After ASG creation, navigate to the 'Instance Management' tab and add a Lifecycle Hook named 'before_terminate'. Set the Lifecycle transition to 'Instance - Terminate' and Default Result to 'ABANDON'.
+- click **Next**
+- and click **Create Auto Scaling group**
+- After ASG creation, navigate to the 'Instance Management' tab and add a Lifecycle Hook named 'before_terminate'. Set the Lifecycle transition to 'Instance - Terminate' and Default Result to **'ABANDON'**.
 6. Verify EC2 Instance Tags: Select the EC2 instance and check if there's a tag named 'license_key' with a value of 'your_random_string'.
 
 7. Confirm DynamoDB Update: Open your DynamoDB table and confirm that the 'used' attribute for the 'your_random_string' key is set to 'True'.
