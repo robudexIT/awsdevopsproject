@@ -1,19 +1,20 @@
 #!/bin/bash
 
-#update the system
-yum update -y
-yum install git -y
+#update the system and install some packages
+ apt update -y
+ apt install git -y
+ apt install pip
 
 #Install latest boto3
-/bin/python3 -m pip install boto3
+python3 -m pip install boto3
 
 
 #Install requests module
-/bin/python3 -m pip install requests
+python3 -m pip install requests
 
 #clone the github repo project
 cd /tmp
 git clone https://github.com/robudexIT/awsdevopsproject.git
 
 #Run the script
-/bin/python3 /tmp/awsdevopsproject/sdlc\ automation/project01/getkey.py
+python3 /tmp/awsdevopsproject/sdlc\ automation/project01/getkey.py
