@@ -8,11 +8,11 @@ AWS Sevices Used:
 - Cloudwatch Event
 
 # How Project Works:
-When an EC2 instance is launched through an Auto Scaling Group, it is configured to automatically retrieve a license key from DynamoDB. For simplicity, we store the license key as a Tag on the instance. Once the instance obtains the license key, it is marked as 'used' in DynamoDB.
+When an EC2 instance is launched through an Auto Scaling Group, it is configured to automatically retrieve a license key from DynamoDB. For simplicity, we store the license key as a Tag on the instance. Once the instance obtains the license key, it is marked as 'used' (**used** attribute is true) in DynamoDB.
 
-To facilitate this process, an Auto Scaling Group has a lifecycle hook attached to it for instances that are terminating. A CloudWatch Event is set up to monitor this lifecycle hook trigger, which in turn, invokes a Lambda function.
+An Auto Scaling Group has a lifecycle hook attached to it for instances that are terminating. A CloudWatch Event is set up to monitor this lifecycle hook trigger, which in turn, invokes a Lambda function.
 
-This Lambda function is responsible for updating the status of the license key in DynamoDB. Specifically, it changes the status from 'used' (if the instance is terminating) back to 'unused,' ensuring that the license key becomes available for future instances."
+This Lambda function is responsible for updating the status of the license key in DynamoDB. Specifically, it changes the status from 'used' (**used** attribute is true)  (if the instance is terminating) back to 'unused,' (**used** attribute is false)  ensuring that the license key becomes available for future instances."
 
   
   
