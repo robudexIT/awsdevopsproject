@@ -2,7 +2,7 @@
 
 #update the system
 yum update -y
-yum install git -yum
+yum install git -y
 
 #Install latest boto3
 /bin/python3 -m pip install boto3
