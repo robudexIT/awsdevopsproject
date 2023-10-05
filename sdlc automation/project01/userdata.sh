@@ -3,7 +3,7 @@
 #update the system and install some packages
  apt update -y
  apt install git -y
- apt install pip
+ apt install pip -y 
 
 #Install latest boto3
 python3 -m pip install boto3
