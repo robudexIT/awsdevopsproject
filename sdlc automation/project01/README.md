@@ -27,7 +27,7 @@ This Lambda function is responsible for updating the status of the license key i
 
 4. Create a Launch Configuration with the following settings:
 
-- AMI: **amazon ec2 linux ami**
+- AMI: **ubuntu server 20.04**
 - Instance Type: **t2.micro**
 - IAM Instance Profile: **ec2-role**
 - Security Group: Create a new one
