@@ -85,9 +85,9 @@ This Lambda function is responsible for updating the status of the license key i
 
 ![Alt text](photo1.png?raw=true "Title")
 
-![Alt text](photo3.png?raw=true "Title")
-
 ![Alt text](photo2.png?raw=true "Title")
+
+![Alt text](photo3.png?raw=true "Title")
 
 ![Alt text](photo4.png?raw=true "Title")
 
