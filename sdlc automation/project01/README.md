@@ -87,9 +87,9 @@ This Lambda function is responsible for updating the status of the license key i
 
 ![Alt text](photo2.png?raw=true "Title")
 
-![Alt text](photo5.png?raw=true "Title")
+![Alt text](photo5.jpg?raw=true "Title")
 
-![Alt text](photo3.png?raw=true "Title")
+![Alt text](photo3.jpg?raw=true "Title")
 
 ![Alt text](photo4.png?raw=true "Title")
 
@@ -105,7 +105,7 @@ This Lambda function is responsible for updating the status of the license key i
 
 ![Alt text](photo11.png?raw=true "Title")
 
-![Alt text](photo12.png?raw=true "Title")
+![Alt text](photo12.jpg?raw=true "Title")
 
 
 **Delete/Terminate All Used Services After Lab:**
