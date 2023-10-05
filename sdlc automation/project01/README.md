@@ -81,6 +81,9 @@ This Lambda function is responsible for updating the status of the license key i
 
 2. After the instance is terminated, check the DynamoDB table **'license_key_db'**. Verify that the 'used' attribute for the 'your_random_string' key has been set back to **'False'** or 'unused.'
 
+**Sample ScreenShots**
+![Alt text](Screenshot from 2023-10-06 05-16-46.png?raw=true "Title")
+
 **Delete/Terminate All Used Services After Lab:**
 
  1. After you have completed your lab and verified the functionality, it's essential to clean up and terminate all the services to avoid incurring additional charges and maintain resource hygiene.
