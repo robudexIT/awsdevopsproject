@@ -1,0 +1,164 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Resources:
+  WildrydesRepo:
+    Type: AWS::CodeCommit::Repository
+    Properties:
+      RepositoryName: wildrydes-site
+      RepositoryDescription: repository for my serverless app
+  
+
+  WildRydesCognitoUserPool:
+    Type: 'AWS::Cognito::UserPool'
+    Properties:
+      UserPoolName: 'WildRydes'
+      # UsernameAttributes:
+      #   - 'email'
+      AliasAttributes:
+        - preferred_username
+      AutoVerifiedAttributes:
+        - 'email'
+      UsernameConfiguration:
+       CaseSensitive: False
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireUppercase: true
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: true
+      MfaConfiguration: 'OFF'
+      Schema:
+        - AttributeDataType: 'String'
+          Name: 'email'
+          Required: true
+        - AttributeDataType: 'String'
+          Name: 'customAttribute' # Add additional custom attributes as needed
+          Required: false
+      
+  WildRydesCognitoUserPoolClient:
+    Type: 'AWS::Cognito::UserPoolClient'
+    Properties:
+      ClientName: 'WildRydesWebApp'
+      UserPoolId: !Ref WildRydesCognitoUserPool
+
+  WildrydesDb:
+    Type: 'AWS::DynamoDB::Table'
+    Properties:
+      TableName: Rides
+      AttributeDefinitions:
+        - AttributeName: 'RideId'
+          AttributeType: 'S'
+      KeySchema:
+        - AttributeName: 'RideId'
+          KeyType: 'HASH'
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+
+  WildRydesLambdaIAMRole:
+      Type: 'AWS::IAM::Role'
+      Properties:
+        AssumeRolePolicyDocument:
+          Version: 2012-10-17
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                  - lambda.amazonaws.com
+              Action:
+                - 'sts:AssumeRole'
+        Path: /
+        Policies:
+          - PolicyName: root
+            PolicyDocument:
+              Version: 2012-10-17
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - 'ec2:*'
+                    - 'dynamodb:*'
+                  Resource: '*'
+                - Effect: Allow
+                  Action:
+                    - 'logs:CreateLogGroup'
+                    - 'logs:CreateLogStream'
+                    - 'logs:PutLogEvents'
+                  Resource: 'arn:aws:logs:*:*:*'
+
+  WildRydesLambdaFunction:
+      Type: 'AWS::Lambda::Function'
+      Properties:
+        FunctionName: RequestUnicorn
+        Handler: index.handler
+        Role: !GetAtt  WildRydesLambdaIAMRole.Arn
+        Runtime: nodejs16.x
+        Timeout: 10
+        Code:
+          ZipFile: |
+             #CODE CODE IS HERE
+  WildRydesApiGateway:
+    Type: 'AWS::ApiGateway::RestApi'
+    Properties:
+      Name: 'WildRydes'
+      FailOnWarnings: 'true'
+      EndpointConfiguration:
+        Types:
+          - 'EDGE'
+
+  WildRydesCognitoAuthorizer:
+    Type: 'AWS::ApiGateway::Authorizer'
+    Properties:
+      Name: 'WildRydes'
+      RestApiId: !Ref WildRydesApiGateway
+      Type: 'COGNITO_USER_POOLS'
+      IdentitySource: 'method.request.header.Authorization'
+      ProviderARNs:
+        - !Sub 'arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${WildRydesCognitoUserPool}'
+
+  WildRydesApiResource:
+    Type: 'AWS::ApiGateway::Resource'
+    Properties:
+      RestApiId: !Ref WildRydesApiGateway
+      ParentId: !GetAtt WildRydesApiGateway.RootResourceId
+      PathPart: 'ride'
+
+  WildRydesRequestValidator:
+    Type: AWS::ApiGateway::RequestValidator
+    Properties:
+      Name:  WildRydesRequestValidator
+      RestApiId: !Ref WildRydesApiGateway
+      ValidateRequestBody: true
+      ValidateRequestParameters: true
+
+           
+Outputs:
+  CloneUrlHttp:
+    Description: WildrydesRepo URL
+    Value: !GetAtt WildrydesRepo.CloneUrlHttp
+  
+  UserPoolId:
+    Description: WildRydesCognitoUserPool Id 
+    Value: !Ref WildRydesCognitoUserPool
+  
+  UserPoolClientId:
+    Description: MyCognitoUserPoolClient Id 
+    Value: !Ref WildRydesCognitoUserPoolClient
+
+  ApiGatewayId: 
+    Description: Api Gateway Id 
+    Value: !Ref WildRydesApiGateway
+
+  WildRydesCognitoAuthorizerId:
+     Description: WildRydesCognitoAuthorizer Id 
+     Value: !Ref  WildRydesCognitoAuthorizer 
+  
+  WildRydesApiResourceId: 
+     Description: WildRydesApiResource Id 
+     Value: !Ref WildRydesApiResource 
+  
+  WildRydesRequestValidatorId:
+     Description: WildRydesRequestValidator Id  
+     Value: !Ref WildRydesRequestValidator
+
+     
