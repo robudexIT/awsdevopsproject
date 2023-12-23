@@ -6,4 +6,4 @@
 
 ## Getting Started
 
-To get started with this project, follow the instructions provided in the [Project Instruction Document (PDF)](./terraform_vpc_peering.pdf?raw=true)
+To get started with this project, follow the instructions provided in the [Project Instruction Document (PDF)](https://github.com/robudexIT/awsdevopsproject/blob/terrform/terraform/vpcpeering/terraform_vpc_peering.pdf)
