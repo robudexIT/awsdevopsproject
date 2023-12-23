@@ -1,1 +1,6 @@
 *.pem
+terraform/vpcpeering/.terraform.lock.hcl
+terraform/vpcpeering/.terraform/
+terraform/vpcpeering/terraform.tfstate
+terraform/vpcpeering/terraform.tfstate.backup
+  
