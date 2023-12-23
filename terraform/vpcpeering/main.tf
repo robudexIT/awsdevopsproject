@@ -40,6 +40,61 @@ module "tokyo_osaka_vpc_peering" {
   osaka_private_sg_id = module.osaka_vpc.private_sg_id
 }
 
+# module "tokyo_ec2" {
+#     source = "./ec2"
+#     region = "ap-northeast-1"
+#     instance_name = "tokyo_instance"
+#     subnet_id = module.tokyo_vpc.private_subnet_id
+#     instance_sg_id = module.tokyo_vpc.private_sg_id
+#    #  iam_instance_profile = module.iam.instance_profile_name
+# }
+
+# module "osaka_ec2" {
+#     source = "./ec2"
+#     providers = {
+#     aws = aws.osaka
+#     }
+#     region = "ap-northeast-3"
+#     instance_name = "osaka_instance"
+#     subnet_id = module.osaka_vpc.private_subnet_id
+#     instance_sg_id = module.osaka_vpc.private_sg_id
+#    #  iam_instance_profile = module.iam.instance_profile_name
+# }
+
+
+
+
+# module "iam" {
+#   source = "./iam"
+# }
+
+
+# module "tokyo_vpc_endpoint" {
+#    source = "./vpc_endpoint"
+#    region = "ap-northeast-1"
+#    vpc_id = "module.tokyo_vpc.vpc_id"
+#    security_group_id = "module.tokyo_vpc.private_sg_id"
+#    subnet_id = "module.tokyo_vpc.private_subnet_id"
+#    route_table_id = " module.osaka_vpc.private_rt_id"
+# }
+
+# module "osaka_vpc_endpoint" {
+   
+#    source = "./vpc_endpoint"
+#    providers = {
+#       aws = aws.osaka
+#    }
+#    region = "ap-northeast-3"
+#    vpc_id = "module.osaka_vpc.vpc_id"
+#    security_group_id = "module.osaka_vpc.private_sg_id"
+#    subnet_id = "module.osaka_vpc.private_subnet_id"
+#    route_table_id = " module.osaka_vpc.private_rt_id"
+
+# }
+
+# output "instance_profile_name"  {
+#     value = module.iam.instance_profile_name
+# }
 
 
 
