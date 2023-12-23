@@ -6,7 +6,7 @@ resource "aws_instance" "ec2_instance_template" {
     Name = var.instance_name
     Server = var.instance_name
   }
-  iam_instance_profile = var.iam_instance_profile
+  # iam_instance_profile = var.iam_instance_profile
   
  
   subnet_id = var.subnet_id

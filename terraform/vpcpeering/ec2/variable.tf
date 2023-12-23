@@ -19,10 +19,10 @@ variable "instance_type" {
     default = "t2.micro"
 }
 
-variable "iam_instance_profile" {
-    type = string 
+# variable "iam_instance_profile" {
+#     type = string 
   
-}
+# }
 
 variable "instance_sg_id" {
     type = string 

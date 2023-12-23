@@ -72,10 +72,10 @@ module "tokyo_osaka_vpc_peering" {
 # module "tokyo_vpc_endpoint" {
 #    source = "./vpc_endpoint"
 #    region = "ap-northeast-1"
-#    vpc_id = "module.tokyo_vpc.vpc_id"
-#    security_group_id = "module.tokyo_vpc.private_sg_id"
-#    subnet_id = "module.tokyo_vpc.private_subnet_id"
-#    route_table_id = " module.osaka_vpc.private_rt_id"
+#    vpc_id = module.tokyo_vpc.vpc_id
+#    security_group_id = module.tokyo_vpc.private_sg_id
+#    subnet_id = module.tokyo_vpc.private_subnet_id
+#    route_table_id = module.tokyo_vpc.private_rt_id
 # }
 
 # module "osaka_vpc_endpoint" {
@@ -85,10 +85,10 @@ module "tokyo_osaka_vpc_peering" {
 #       aws = aws.osaka
 #    }
 #    region = "ap-northeast-3"
-#    vpc_id = "module.osaka_vpc.vpc_id"
-#    security_group_id = "module.osaka_vpc.private_sg_id"
-#    subnet_id = "module.osaka_vpc.private_subnet_id"
-#    route_table_id = " module.osaka_vpc.private_rt_id"
+#    vpc_id = module.osaka_vpc.vpc_id
+#    security_group_id = module.osaka_vpc.private_sg_id
+#    subnet_id = module.osaka_vpc.private_subnet_id
+#    route_table_id = module.osaka_vpc.private_rt_id
 
 # }
 
