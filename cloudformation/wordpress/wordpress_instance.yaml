@@ -1,0 +1,198 @@
+
+Parameters:
+  InstanceType:
+    AllowedValues:
+      - t2.micro
+      - t2.medium
+    ConstraintDescription: must be valid EC2 InstanceType.
+    Default: t2.micro 
+    Description: EC2 Instance Type 
+    Type: String 
+  
+  KeyName: 
+    ConstraintDescription: must be the name of an existing EC2 Keypair 
+    Description: Name of an existing Keypair to enable SSH access to the Instance
+    Type: AWS::EC2::KeyPair::KeyName
+
+  SubnetId:
+    Type: AWS::EC2::Subnet::Id
+    Description: Subnet of The Frontend Server
+
+  SecurityGroupID:
+    Type: AWS::EC2::SecurityGroup::Id 
+    Description: Security Gruop of Wordpress Instance   
+
+  InstanceProfileRole:
+    Description: Role use by the ec2 instance in your behalf
+    Type: String  
+  
+  SSHLocation: 
+     AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2}) 
+     ConstraintDescription: must be a valid IP CIDR range of the form x.x.x.x/x.
+     Default: 0.0.0.0/0
+     Description: The IP address or group of IP Address that allowed to access EC2 Instance
+     MaxLength: '18'
+     MinLength: '9'
+     Type: String
+
+
+
+Mappings:
+  AWSInstanceType2Arch:
+    t2.micro:
+       Arch: HVM64
+    t2.medium:
+      Arch: HVM64
+  AWSRegionArch2AMI:
+     us-east-1:
+       HVM64: ami-079db87dc4c10ac91
+     us-east-2:
+       HVM64: ami-0ee4f2271a4df2d7d
+
+
+Resources:   
+  ParameterDBName:
+    Type: AWS::SSM::Parameter
+    Properties:
+      DataType: text
+      Description: Wordpress Database Name
+      Name: /A4L/Wordpress/DBName
+      Type: String
+      Value: a4lwordpressdb
+      Tier: Standard
+
+  ParameterDBUser:
+    Type: AWS::SSM::Parameter
+    Properties:
+      DataType: text
+      Description: Wordpress Database User
+      Name: /A4L/Wordpress/DBUser
+      Type: String
+      Value: a4lwordpressuser
+      Tier: Standard
+    
+
+  ParameterDBEndpoint:
+    Type: AWS::SSM::Parameter
+    Properties:
+      DataType: text
+      Description: Wordpress Endpoint Name
+      Name: /A4L/Wordpress/DBEndpoint
+      Type: String
+      Value: localhost     
+      Tier: Standard
+
+  ParameterDBPassword:
+    Type: AWS::SSM::Parameter
+    Properties:
+      DataType: text
+      Description: Wordpress DB Password
+      Name: /A4L/Wordpress/DBPassword
+      Type: String
+      Value: 4n1m4l54L1f3        
+      Tier: Standard
+
+  ParameterDBRootPassword:
+    Type: AWS::SSM::Parameter
+    Properties:
+      DataType: text
+      Description: Wordpress DBRoot Password
+      Name: /A4L/Wordpress/DBRootPassword
+      Type: String
+      Value: 4n1m4l54L1f3        
+      Tier: Standard    
+    
+  Wordpress: 
+    Type: AWS::EC2::Instance
+    CreationPolicy:
+       ResourceSignal:
+         Timeout: PT15M  
+    Properties: 
+      ImageId: !FindInMap [AWSRegionArch2AMI, !Ref 'AWS::Region', !FindInMap [AWSInstanceType2Arch, !Ref InstanceType, Arch]]
+      InstanceType: !Ref InstanceType
+      KeyName: !Ref KeyName
+      IamInstanceProfile: !Ref InstanceProfileRole
+      Tags: 
+        - Key: Server 
+          Value: Wordpress
+        - Key: Name 
+          Value: Wordress
+      SubnetId: !Ref SubnetId
+      SecurityGroupIds: 
+        - !Ref SecurityGroupID
+      UserData: 
+        Fn::Base64: !Sub |
+            #!/bin/bash -xe
+
+            #Bring in the parameter values from SSM
+            DBPassword=$(aws ssm get-parameters --region us-east-1 --names /A4L/Wordpress/DBPassword  --query Parameters[0].Value)
+            DBPassword=`echo $DBPassword | sed -e 's/^"//' -e 's/"$//'`
+
+            DBRootPassword=$(aws ssm get-parameters --region us-east-1 --names /A4L/Wordpress/DBRootPassword  --query Parameters[0].Value)
+            DBRootPassword=`echo $DBRootPassword | sed -e 's/^"//' -e 's/"$//'`
+
+            DBUser=$(aws ssm get-parameters --region us-east-1 --names /A4L/Wordpress/DBUser --query Parameters[0].Value)
+            DBUser=`echo $DBUser | sed -e 's/^"//' -e 's/"$//'`
+
+            DBName=$(aws ssm get-parameters --region us-east-1 --names /A4L/Wordpress/DBName --query Parameters[0].Value)
+            DBName=`echo $DBName | sed -e 's/^"//' -e 's/"$//'`
+
+            DBEndpoint=$(aws ssm get-parameters --region us-east-1 --names /A4L/Wordpress/DBEndpoint --query Parameters[0].Value)
+            DBEndpoint=`echo $DBEndpoint | sed -e 's/^"//' -e 's/"$//'`  
+
+            #INSTALL UPDATE
+            sudo dnf -y update
+
+            #Install Pre-Reqs and Web Server 
+            sudo dnf install wget php-mysqlnd httpd php-fpm php-mysqli mariadb105-server php-json php php-devel stress -y
+
+            #Set DB and HTTP Server to running and start by default
+            sudo systemctl enable httpd
+            sudo systemctl enable mariadb
+            sudo systemctl start httpd
+            sudo systemctl start mariadb
+
+            #Set the MariaDB Root Password
+            sudo mysqladmin -u root password $DBRootPassword
+
+            #Download and extract Wordpress
+            sudo wget http://wordpress.org/latest.tar.gz -P /var/www/html
+            cd /var/www/html
+            sudo tar -zxvf latest.tar.gz
+            sudo cp -rvf wordpress/* .
+            sudo rm -R wordpress
+            sudo rm latest.tar.gz
+            
+            #Configure the wordpress wp-config.php file
+            sudo cp ./wp-config-sample.php ./wp-config.php
+            sudo sed -i "s/'database_name_here'/'$DBName'/g" wp-config.php
+            sudo sed -i "s/'username_here'/'$DBUser'/g" wp-config.php
+            sudo sed -i "s/'password_here'/'$DBPassword'/g" wp-config.php 
+
+            #Fix Permissions on the filesystem 
+            sudo usermod -a -G apache ec2-user   
+            sudo chown -R ec2-user:apache /var/www
+            sudo chmod 2775 /var/www
+            sudo find /var/www -type d -exec chmod 2775 {} \;
+            sudo find /var/www -type f -exec chmod 0664 {} \;
+
+            #Create Wordpress User, set its password, create the database and configure permissions
+            sudo echo "CREATE DATABASE $DBName;" >> /tmp/db.setup
+            sudo echo "CREATE USER '$DBUser'@'localhost' IDENTIFIED BY '$DBPassword';" >> /tmp/db.setup
+            sudo echo "GRANT ALL ON $DBName.* TO '$DBUser'@'localhost';" >> /tmp/db.setup
+            sudo echo "FLUSH PRIVILEGES;" >> /tmp/db.setup
+            sudo mysql -u root --password=$DBRootPassword < /tmp/db.setup
+            sudo rm /tmp/db.setup
+
+
+            /opt/aws/apitools/cfn-init/bin/cfn-signal -e $? --stack ${AWS::StackId} --resource Wordpress --region ${AWS::Region}
+
+
+        
+
+
+      
+
+
+
+        
