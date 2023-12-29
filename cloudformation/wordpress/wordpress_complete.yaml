@@ -1,0 +1,492 @@
+
+Parameters:
+  VPCID: 
+    Type: AWS::EC2::VPC::Id
+    ConstraintDescription: must be valid VPC-id.
+    Description: Select VPC ID
+  InstanceType:
+    AllowedValues:
+      - t2.micro
+      - t2.medium
+    ConstraintDescription: must be valid EC2 InstanceType.
+    Default: t2.micro 
+    Description: EC2 Instance Type 
+    Type: String 
+  
+  KeyName: 
+    ConstraintDescription: must be the name of an existing EC2 Keypair 
+    Description: Name of an existing Keypair to enable SSH access to the Instance
+    Type: AWS::EC2::KeyPair::KeyName
+
+  WordpressASubnetId:
+    Type: AWS::EC2::Subnet::Id
+    Description: Subnet of for Wordpress Server
+
+  WordpressBSubnetId:
+    Type: AWS::EC2::Subnet::Id
+    Description: Subnet of for Wordpress Server
+
+  WordpressCSubnetId:
+    Type: AWS::EC2::Subnet::Id
+    Description: Subnet of for Wordpress Server
+   
+
+  DbASubnetId:
+    Type: AWS::EC2::Subnet::Id
+    Description: DbA Subnet 
+
+  DbBSubnetId:
+    Type: AWS::EC2::Subnet::Id
+    Description: DbB Subnet 
+
+  DbCSubnetId:
+    Type: AWS::EC2::Subnet::Id
+    Description: DbC Subnet 
+
+  EFSASubnetID:
+    Type: AWS::EC2::Subnet::Id
+    Description: DbC Subnet 
+
+  EFSBSubnetID:
+    Type: AWS::EC2::Subnet::Id
+    Description: DbC Subnet 
+
+  EFSCSubnetID:
+    Type: AWS::EC2::Subnet::Id
+    Description: DbC Subnet       
+
+  WordpressSecurityGroupID:
+    Type: AWS::EC2::SecurityGroup::Id 
+    Description: Security Gruop of Wordpress Instance   
+
+  RdsSecurityGroupID:
+    Type: AWS::EC2::SecurityGroup::Id 
+    Description: Security Gruop of Wordpress Instance    
+
+  EFSSecurityGroupID:
+    Type: AWS::EC2::SecurityGroup::Id 
+    Description: Security Gruop of Wordpress Instance    
+
+  ALBSecurityGroupID:
+    Type: AWS::EC2::SecurityGroup::Id 
+    Description: Security Gruop of Wordpress Instance        
+
+  InstanceProfileRole:
+    Description: Role use by the ec2 instance in your behalf
+    Type: String  
+  
+  SSHLocation: 
+     AllowedPattern: (\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2}) 
+     ConstraintDescription: must be a valid IP CIDR range of the form x.x.x.x/x.
+     Default: 0.0.0.0/0
+     Description: The IP address or group of IP Address that allowed to access EC2 Instance
+     MaxLength: '18'
+     MinLength: '9'
+     Type: String
+
+
+
+Mappings:
+  AWSInstanceType2Arch:
+    t2.micro:
+       Arch: HVM64
+    t2.medium:
+      Arch: HVM64
+  AWSRegionArch2AMI:
+     us-east-1:
+       HVM64: ami-079db87dc4c10ac91
+     us-east-2:
+       HVM64: ami-0ee4f2271a4df2d7d
+
+
+Resources:   
+
+  EFSWordpress:
+    Type: AWS::EFS::FileSystem
+    Properties:
+      PerformanceMode: generalPurpose
+      ThroughputMode: bursting 
+      Encrypted: False
+      BackupPolicy: 
+        Status: ENABLED
+
+      FileSystemTags: 
+        - Key: Name 
+          Value: A4L-WORDPRESS-CONTENT
+      LifecyclePolicies:
+        - TransitionToIA: AFTER_30_DAYS 
+
+  EFSMountargetA:
+    Type: AWS::EFS::MountTarget 
+    Properties:
+      FileSystemId: !Ref EFSWordpress
+      SecurityGroups: 
+         - !Ref EFSSecurityGroupID
+      SubnetId: !Ref  EFSASubnetID  
+
+  EFSMountargetB:
+    Type: AWS::EFS::MountTarget 
+    Properties:
+      FileSystemId: !Ref EFSWordpress
+      SecurityGroups: 
+         - !Ref EFSSecurityGroupID
+      SubnetId: !Ref  EFSBSubnetID  
+
+  EFSMountargetC:
+    Type: AWS::EFS::MountTarget 
+    Properties:
+      FileSystemId: !Ref EFSWordpress
+      SecurityGroups: 
+         - !Ref EFSSecurityGroupID
+      SubnetId: !Ref  EFSCSubnetID  
+
+    
+  WordPressRDSSubNetGroup: 
+    Type: AWS::RDS::DBSubnetGroup
+    Properties: 
+      DBSubnetGroupDescription: RDS Subnet Group for WordPress
+      DBSubnetGroupName: WordPressRDSSubNetGroup
+      SubnetIds: 
+        - !Ref DbASubnetId
+        - !Ref DbBSubnetId 
+        - !Ref DbCSubnetId 
+      Tags: 
+        - Key: Name 
+          Value:  WordPressRDSSubNetGroup
+
+
+  RDSWordpress:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBInstanceIdentifier: "a4lWordPress"
+      AllocatedStorage: '20'
+      BackupRetentionPeriod: 1
+      DBName: !GetAtt ParameterDBName.Value
+      DBInstanceClass: db.t3.micro
+      DBSubnetGroupName: !Ref  WordPressRDSSubNetGroup
+      Engine: mysql
+      EngineVersion: "8.0.32"
+      MasterUsername: !GetAtt ParameterDBUser.Value
+      MasterUserPassword:  !GetAtt ParameterDBPassword.Value
+      PubliclyAccessible: false
+      VPCSecurityGroups: 
+       - !Ref RdsSecurityGroupID        
+  
+            
+  ParameterDBName:
+    Type: AWS::SSM::Parameter
+    Properties:
+      DataType: text
+      Description: Wordpress Database Name
+      Name: /A4L/Wordpress/DBName
+      Type: String
+      Value: a4lwordpressdb
+      Tier: Standard
+
+  ParameterDBUser:
+    Type: AWS::SSM::Parameter
+    Properties:
+      DataType: text
+      Description: Wordpress Database User
+      Name: /A4L/Wordpress/DBUser
+      Type: String
+      Value: a4lwordpressuser
+      Tier: Standard
+    
+
+  ParameterDBEndpoint:
+    DependsOn: RDSWordpress
+    Type: AWS::SSM::Parameter
+    Properties:
+      DataType: text
+      Description: Wordpress Endpoint Name
+      Name: /A4L/Wordpress/DBEndpoint
+      Type: String
+      Value: !GetAtt RDSWordpress.Endpoint.Address    
+      Tier: Standard
+
+  ParameterDBPassword:
+    Type: AWS::SSM::Parameter
+    Properties:
+      DataType: text
+      Description: Wordpress DB Password
+      Name: /A4L/Wordpress/DBPassword
+      Type: String
+      Value: 4n1m4l54L1f3        
+      Tier: Standard
+
+  ParameterDBRootPassword:
+    Type: AWS::SSM::Parameter
+    Properties:
+      DataType: text
+      Description: Wordpress DBRoot Password
+      Name: /A4L/Wordpress/DBRootPassword
+      Type: String
+      Value: 4n1m4l54L1f3        
+      Tier: Standard    
+
+  ParameterEFSID:
+    DependsOn: EFSWordpress
+    Type: AWS::SSM::Parameter
+    Properties:
+      DataType: text
+      Description: Wordpress Endpoint Name
+      Name: /A4L/Wordpress/EFSFSID
+      Type: String
+      Value: !GetAtt EFSWordpress.FileSystemId   
+      Tier: Standard   
+
+  ParameterALBDNSNAME:
+    DependsOn: WordpressALB
+    Type: AWS::SSM::Parameter
+    Properties:
+      DataType: text
+      Description: DNS Name of the Application Load Balancer for wordpress
+      Name: /A4L/Wordpress/ALBDNSNAME
+      Type: String
+      Value: !GetAtt  WordpressALB.DNSName   
+      Tier: Standard   
+
+  WordpressLaunchTemplate:
+    Type: AWS::EC2::LaunchTemplate
+    Properties:
+      LaunchTemplateName: WordpressLaunchTemplate
+      VersionDescription: Version 1
+      LaunchTemplateData: 
+        ImageId: !FindInMap [AWSRegionArch2AMI, !Ref 'AWS::Region', !FindInMap [AWSInstanceType2Arch, !Ref InstanceType, Arch]]
+        InstanceType: !Ref InstanceType
+        IamInstanceProfile: 
+          Name: !Ref InstanceProfileRole
+        CreditSpecification: 
+           CpuCredits: standard
+        KeyName: !Ref KeyName
+        SecurityGroupIds: 
+          - !Ref WordpressSecurityGroupID
+           
+        UserData: 
+           Fn::Base64: !Sub |
+            #!/bin/bash -xe
+            #Bring in the parameter values from SSM
+            DBPassword=$(aws ssm get-parameters --region us-east-1 --names /A4L/Wordpress/DBPassword  --query Parameters[0].Value)
+            DBPassword=`echo $DBPassword | sed -e 's/^"//' -e 's/"$//'`
+
+            DBRootPassword=$(aws ssm get-parameters --region us-east-1 --names /A4L/Wordpress/DBRootPassword  --query Parameters[0].Value)
+            DBRootPassword=`echo $DBRootPassword | sed -e 's/^"//' -e 's/"$//'`
+
+            DBUser=$(aws ssm get-parameters --region us-east-1 --names /A4L/Wordpress/DBUser --query Parameters[0].Value)
+            DBUser=`echo $DBUser | sed -e 's/^"//' -e 's/"$//'`
+
+            DBName=$(aws ssm get-parameters --region us-east-1 --names /A4L/Wordpress/DBName --query Parameters[0].Value)
+            DBName=`echo $DBName | sed -e 's/^"//' -e 's/"$//'`
+
+            DBEndpoint=$(aws ssm get-parameters --region us-east-1 --names /A4L/Wordpress/DBEndpoint --query Parameters[0].Value)
+            DBEndpoint=`echo $DBEndpoint | sed -e 's/^"//' -e 's/"$//'`  
+
+            EFSFSID=$(aws ssm get-parameters --region us-east-1 --names /A4L/Wordpress/EFSFSID --query Parameters[0].Value)
+            EFSFSID=`echo $EFSFSID | sed -e 's/^"//' -e 's/"$//'`
+
+            ALBDNSNAME=$(aws ssm get-parameters --region us-east-1 --names /A4L/Wordpress/ALBDNSNAME --query Parameters[0].Value)
+            ALBDNSNAME=`echo $ALBDNSNAME | sed -e 's/^"//' -e 's/"$//'`
+
+
+            #INSTALL UPDATE
+            sudo dnf -y update
+
+            #Install Pre-Reqs and Web Server 
+            sudo dnf install wget php-mysqlnd httpd php-fpm php-mysqli mariadb105 php-json php php-devel stress  amazon-efs-utils -y
+
+            #Set  and HTTP Server to running and start by default
+            sudo systemctl enable httpd
+            sudo systemctl start httpd
+
+            mkdir -p /var/www/html/wp-content
+            chown -R ec2-user:apache /var/www/
+            echo -e "$EFSFSID:/ /var/www/html/wp-content efs _netdev,tls,iam 0 0" >> /etc/fstab
+            mount -a -t efs defaults
+              
+
+            #Download and extract Wordpress
+            sudo wget http://wordpress.org/latest.tar.gz -P /var/www/html
+            cd /var/www/html
+            sudo tar -zxvf latest.tar.gz
+            sudo cp -rvf wordpress/* .
+            sudo rm -R wordpress
+            sudo rm latest.tar.gz
+                
+            #Configure the wordpress wp-config.php file
+            sudo cp ./wp-config-sample.php ./wp-config.php
+            sudo sed -i "s/'database_name_here'/'$DBName'/g" wp-config.php
+            sudo sed -i "s/'username_here'/'$DBUser'/g" wp-config.php
+            sudo sed -i "s/'password_here'/'$DBPassword'/g" wp-config.php 
+            sudo sed -i "s/'localhost'/'$DBEndpoint'/g" /var/www/html/wp-config.php
+                
+
+            #Fix Permissions on the filesystem 
+            sudo usermod -a -G apache ec2-user   
+            sudo chown -R ec2-user:apache /var/www
+            sudo chmod 2775 /var/www
+            sudo find /var/www -type d -exec chmod 2775 {} \;
+            sudo find /var/www -type f -exec chmod 0664 {} \;
+
+        
+            cat >> /home/ec2-user/update_wp_ip.sh <<'EOF'
+            #!/bin/bash
+            source <(php -r 'require("/var/www/html/wp-config.php"); echo("DB_NAME=".DB_NAME."; DB_USER=".DB_USER."; DB_PASSWORD=".DB_PASSWORD."; DB_HOST=".DB_HOST); ')
+            SQL_COMMAND="mysql -u $DB_USER -h $DB_HOST -p$DB_PASSWORD $DB_NAME -e"
+            OLD_URL=$(mysql -u $DB_USER -h $DB_HOST -p$DB_PASSWORD $DB_NAME -e 'select option_value from wp_options where option_id = 1;' | grep http)
+
+            ALBDNSNAME=$(aws ssm get-parameters --region us-east-1 --names /A4L/Wordpress/ALBDNSNAME --query Parameters[0].Value)
+            ALBDNSNAME=$(echo $ALBDNSNAME | sed -e 's/^"//' -e 's/"$//')
+
+            $SQL_COMMAND "UPDATE wp_options SET option_value = replace(option_value, '$OLD_URL', 'http://$ALBDNSNAME') WHERE option_name = 'home' OR option_name = 'siteurl';"
+            $SQL_COMMAND "UPDATE wp_posts SET guid = replace(guid, '$OLD_URL','http://$ALBDNSNAME');"
+            $SQL_COMMAND "UPDATE wp_posts SET post_content = replace(post_content, '$OLD_URL', 'http://$ALBDNSNAME');"
+            $SQL_COMMAND "UPDATE wp_postmeta SET meta_value = replace(meta_value,'$OLD_URL','http://$ALBDNSNAME');"
+            EOF
+
+
+            chmod 755 /home/ec2-user/update_wp_ip.sh
+            echo "/home/ec2-user/update_wp_ip.sh" >> /etc/rc.local
+            /home/ec2-user/update_wp_ip.sh
+
+
+
+                
+
+  
+  WordpressTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      VpcId: !Ref VPCID
+      HealthCheckProtocol: HTTP 
+      HealthCheckPath: /
+      IpAddressType: ipv4 
+      Name:  WordpressTargetGroup
+      Port: 80
+      Protocol: HTTP
+      TargetType: instance
+      Tags: 
+        - Key: Name 
+          Value: WordpressTargetGroup
+
+  WordpressALB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      IpAddressType: ipv4
+      Name: A4LWORDPRESSALB
+      Scheme: internet-facing
+      SecurityGroups: 
+        - !Ref ALBSecurityGroupID
+
+      Subnets: 
+        - !Ref WordpressASubnetId
+        - !Ref WordpressBSubnetId
+        - !Ref WordpressCSubnetId
+      Tags: 
+        - Key: Name 
+          Value:  WordpressALB 
+      Type: application  
+
+  FrontendElasticLoadBalancingListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions: 
+         - Type: forward 
+           TargetGroupArn: !Ref WordpressTargetGroup
+        
+
+      LoadBalancerArn: !Ref  WordpressALB
+      Port: '80'
+      Protocol: HTTP
+      
+
+  WordpressASG:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    DependsOn: [ ParameterDBEndpoint, WordpressALB ]
+    Properties: 
+      AutoScalingGroupName: A4LWORDPRESSASG
+      LaunchTemplate: 
+        LaunchTemplateId: !Ref WordpressLaunchTemplate
+        Version: !GetAtt WordpressLaunchTemplate.LatestVersionNumber
+    
+      TargetGroupARNs: 
+       - !Ref  WordpressTargetGroup
+      HealthCheckType: EC2
+      MaxSize: '3'
+      MinSize: '1'
+      DesiredCapacity: '1'
+      VPCZoneIdentifier:
+        - !Ref WordpressASubnetId
+        - !Ref WordpressBSubnetId
+        - !Ref WordpressCSubnetId
+      MetricsCollection: 
+        - Granularity: 1Minute
+      Tags: 
+        - Key: Name 
+          Value: Wordpress-ASG
+          PropagateAtLaunch: true
+
+  HighCpuScalingPolicy: 
+    Type: AWS::AutoScaling::ScalingPolicy
+    Properties:
+     AutoScalingGroupName: !Ref WordpressASG
+     PolicyType: SimpleScaling
+     AdjustmentType: ChangeInCapacity
+     ScalingAdjustment: 1 
+
+  HighCpuAlarm:
+    Type: "AWS::CloudWatch::Alarm"
+    Properties:
+      AlarmName: WordpressHIGHCPU
+      AlarmDescription: "Alarm for high CPU utilization"
+      MetricName: CPUUtilization
+      Namespace: AWS/EC2
+      Statistic: Average
+      Period: 300
+      Threshold: 80
+      ComparisonOperator: GreaterThanThreshold
+      EvaluationPeriods: 1
+      TreatMissingData: notBreaching
+      Dimensions:
+        - Name: AutoScalingGroupName
+          Value: !Ref WordpressASG
+      AlarmActions:
+        - !Ref HighCpuScalingPolicy
+  
+
+  LowCpuScalingPolicy:
+    Type: "AWS::AutoScaling::ScalingPolicy"
+    Properties:
+      AutoScalingGroupName: !Ref WordpressASG
+      PolicyType: SimpleScaling
+      AdjustmentType: ChangeInCapacity 
+      ScalingAdjustment: -1  # Remove 1 Capacity unit
+      Cooldown: 300  # You can adjust the cooldown period as needed
+
+  LowCpuAlarm:
+    Type: "AWS::CloudWatch::Alarm"
+    Properties:
+      AlarmName: WordpressLOWCPU
+      AlarmDescription: "Alarm for low CPU utilization"
+      MetricName: CPUUtilization
+      Namespace: AWS/EC2
+      Statistic: Average
+      Period: 300
+      Threshold: 40
+      ComparisonOperator: LessThanThreshold
+      EvaluationPeriods: 1
+      TreatMissingData: notBreaching
+      Dimensions:
+        - Name: AutoScalingGroupName
+          Value: !Ref WordpressASG
+      AlarmActions:
+        - !Ref LowCpuScalingPolicy
+ 
+        
+   
+
+      
+
+
+
+        
